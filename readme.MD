@@ -50,24 +50,28 @@ main.json包括用户信息（email, uuid，所在进程），由v2ray的config.
 
 ##### 命令行运行
 ```
-python util/init.py
+python util/init_db.py
 python ./app.py
 ```
 每次新加入用户，更新main.json之后，再次运行上面命令行，可以更新db.json。
 由main.json生成db.json的步骤并不是必需。没有的话，程序依然可以通过v2ray的流量，只是users表中没有path和uuid。
 
 ##### 安装supervisor，让脚本以服务的方式运行。
-把配置文件```by5minutes.conf```放在supervisor的配置文件夹 ```/etc/supervisor/conf.d/```。
+
 ```
 sudo apt install supervisor
+sudo service supervisor restart
 
-# 移动配置文件之前，需要指定程序运行目录
-# app.py中,更改username为你的用户名：
+# 移动配置文件之前,更改 app.py 中username为你的用户名：
 # #!/usr/bin/env /home/username/logv2traffic/venv/bin/python
 
-# 同样在by5minutes.conf中,更改username为你的用户名：
+# 同样在 by5minutes.conf,指定程序运行目录,更改username为你的用户名：
 # directory=/home/username/logv2traffic/
 # command=/home/username/logv2traffic/app.py
+# user=username
+
+# 把配置文件 by5minutes.conf 放在supervisor的配置文件夹 /etc/supervisor/conf.d/
+sudo cp by5minutes.conf /etc/supervisor/conf.d/
 
 sudo supervisorctl reread
 sudo supervisorctl update
