@@ -1,4 +1,5 @@
 import schedule
+import time
 from tinydb import TinyDB, Query
 
 from util import traffics_util
@@ -37,3 +38,4 @@ schedule.every(5).minutes.do(get_traffic_data_to_db)
 def start_app():
   while True:
     schedule.run_pending()
+    time.sleep(0.2)
