@@ -1,9 +1,7 @@
 import re
 import time
 from util import cmd_util
-from functools import reduce
-
-traffics = []
+from itertools import groupby
 
 # match v2ray StatsService.GetStats 一个 stat 输出的正则表达式
 _traffic_pattern = re.compile(
@@ -30,21 +28,10 @@ def get_v2ray_api_cmd(service='StatsService',
 def key_for_sort(each):
     return each['tag']
 
-def tool_for(a, b):
-    if a['tag'] == b['tag']:
-        traffics.append({
-            'id_type': a['id_type'],
-            'tag': a['tag'],
-            a['traffice_type']: a['value'],
-            b['traffice_type']: b['value']
-        })
-        return {'tag': ''}
-    else:
-        return b
-
 # 返回一个数组, [{'id_type': 'inbound', 'tag': 'ray', 'traffice_type': 'uplink', 'value': 17963776},{'id_type': 'inbound', 'tag': 'kay', 'traffice_type': 'downlink', 'value': 0}]
 def get_traffic(isreset='true'):
 
+    traffics = []
     raw_traffics = []
 
     moment = str(int(time.time()))
@@ -74,6 +61,18 @@ def get_traffic(isreset='true'):
         })
 
     raw_traffics.sort(key = key_for_sort)
-    reduce(tool_for, raw_traffics)
+    raw_traffics = groupby(raw_traffics, key = key_for_sort)
+
+    groups = []
+    for key, traffic in raw_traffics:
+        groups.append(list(traffic))
+
+    for i in groups:
+        traffics.append({
+            'id_type': i[0]['id_type'],
+            'tag': i[0]['tag'],
+            i[0]['traffice_type']: i[0]['value'],
+            i[1]['traffice_type']: i[1]['value']
+        })
 
     return traffics, moment
