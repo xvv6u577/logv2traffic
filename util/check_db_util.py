@@ -34,25 +34,17 @@ def get_days_stats(day = 1):
 
 def get_users_info():
   info = []
-
   for user in db_users:
     timestamp = 0
-    raw_user_table = db.table(user['email'])
-    if len(raw_user_table) >0:
-      for raw_user in raw_user_table:
-        for i in raw_user:
-          if i == 'timestamp':
-            timestamp = int(raw_user['timestamp'])
-          else:
-            timestamp = int(i)
-          break
-        break
-    
+    u = db.table(user['email'])
+    if len(u) >0:
+      # list(u.all()[0].keys())[0] - get key at {'1583841550': 0}
+      timestamp = int(list(u.all()[0].keys())[0]) \
+        if len(u.all()[0]) == 1 else int(u.all()[0]['timestamp'])
     info.append({
       'timestamp': timestamp,
       'user': user['email']
     })
-  
   info.sort(key = lambda i:i['timestamp'], reverse = True)
 
   return info
