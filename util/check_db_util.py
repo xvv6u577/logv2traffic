@@ -32,6 +32,29 @@ def get_days_stats(day = 1):
   
   return info, past_one_day, now
 
+def between_days_stats(from_moment = 0, to_moment = 0):
+  info = []
+  
+  for user in db_users:
+    uplink_total = 0
+    downlink_total = 0
+    raw_user_table = db.table(user['email'])
+    user_table = raw_user_table.search(where('timestamp').exists())
+
+    for item in user_table:
+      if from_moment <= int(item['timestamp']) <= to_moment :
+          uplink_total += item['uplink']
+          downlink_total += item['downlink']
+
+    info.append({
+      'user': user['email'],
+      'uplink': uplink_total,
+      'downlink': downlink_total
+    })
+
+  info.sort(key = lambda i:i['downlink'], reverse = True)
+  return info
+
 def get_users_info():
   info = []
   for user in db_users:
