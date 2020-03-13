@@ -5,11 +5,13 @@ from util.check_db_util import get_days_stats, get_users_info
 from util.byte_converter import get_printable_size
 
 def echo_stats(info = [], time_from = 0, time_to = 0):
-  print('From', datetime.utcfromtimestamp(time_from).strftime('%Y-%m-%d %H:%M:%S'),\
-    'to', datetime.utcfromtimestamp(time_to).strftime('%Y-%m-%d %H:%M:%S'))
+  print('\nFrom', datetime.utcfromtimestamp(time_from).strftime('%Y-%m-%d %H:%M:%S'),\
+    'to', datetime.utcfromtimestamp(time_to).strftime('%Y-%m-%d %H:%M:%S'),'\n')
+  i = 1
   for item in info:
-    print('{:15s}: uplink {:10s},downlink {:10s}'.format(item['user'], \
+    print('[{:2s}]: {:15s} uplink {:10s}, downlink {:10s}'.format(str(i), item['user'], \
       get_printable_size(item['uplink']), get_printable_size(item['downlink'])))
+    i += 1
 
 def entry():
   try:
@@ -39,6 +41,8 @@ def entry():
         if 0 != user_info['timestamp']:
           record_start = datetime.utcfromtimestamp(user_info['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
         print('{:15s}: {:20s}'.format(user_info['user'], record_start))
+      
+      sys.exit()
   
   # print(opts, args)
 

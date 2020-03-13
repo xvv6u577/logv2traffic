@@ -18,7 +18,7 @@ def get_days_stats(day = 1):
     user_table = raw_user_table.search(where('timestamp').exists())
 
     for item in user_table:
-      if int(item['timestamp']) > past_one_day :
+      if now >= int(item['timestamp']) >= past_one_day :
           uplink_total += item['uplink']
           downlink_total += item['downlink']
 
