@@ -1,8 +1,8 @@
 ## logv2traffic
 
-一个简单的v2ray流量统计程序，用python实现。
+一个简单的 v2ray 流量统计程序，用 python 实现。
 
-程序运行之后，每5分钟统计一次v2ray的流量，记录在db.json。
+程序运行之后，每 5 分钟统计一次 v2ray 的流量，记录在 db.json。
 
 ### 环境 & 安装
 
@@ -21,11 +21,11 @@ chmod +x app.py
 
 ### 运行
 
-##### 由配置文件main.json生成数据库文件db.json
+##### 由配置文件 main.json 生成数据库文件 db.json
 
-db.json包括users表，记录用户信息；用户的email表，存储用户流量统计；进程表，用来记录进程流量。email表、进程表中，包括每5分钟统计一次的流量数据，分为uplink和downlink两部分，单位为字节（Byte）。
+db.json 包括 users 表，记录用户信息；用户的 email 表，存储用户流量统计；进程表，用来记录进程流量。email 表、进程表中，包括每 5 分钟统计一次的流量数据，分为 uplink 和 downlink 两部分，单位为字节（Byte）。
 
-main.json包括用户信息（email, uuid，所在进程），由v2ray的config.json生成，格式如下：
+main.json 包括用户信息（email, uuid，所在进程），由 v2ray 的 config.json 生成，格式如下：
 
 ```
 {
@@ -49,32 +49,23 @@ main.json包括用户信息（email, uuid，所在进程），由v2ray的config.
 ```
 
 ##### 命令行运行
+
 ```
 python util/init_db.py
 python ./app.py
 ```
-每次新加入用户，更新main.json之后，再次运行上面命令行，可以更新db.json。
-由main.json生成db.json的步骤并不是必需。没有的话，程序依然可以通过v2ray的流量，只是users表中没有path和uuid。
 
-##### 安装supervisor，让脚本以服务的方式运行。
+每次新加入用户，更新 main.json 之后，再次运行上面命令行，可以更新 db.json。
+由 main.json 生成 db.json 的步骤并不是必需。没有的话，程序依然可以通过 v2ray 的流量，只是 users 表中没有 path 和 uuid。
+
+##### 添加 systemctl 服务，让脚本以服务的方式运行。
 
 ```
-sudo apt install supervisor
-sudo service supervisor restart
-
-# 移动配置文件之前,更改 app.py 中username为你的用户名：
-# #!/usr/bin/env /home/username/logv2traffic/venv/bin/python
-
-# 同样在 by5minutes.conf,指定程序运行目录,更改username为你的用户名：
-# directory=/home/username/logv2traffic/
-# command=/home/username/logv2traffic/app.py
-# user=username
-
-# 把配置文件 by5minutes.conf 放在supervisor的配置文件夹 /etc/supervisor/conf.d/
-sudo cp by5minutes.conf /etc/supervisor/conf.d/
-
-sudo supervisorctl reread
-sudo supervisorctl update
+# 更正by5minutes.service中路径之后，运行下面命令
+sudo mv by5minutes.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start by5minutes.service
+sudo systemctl enable dummy.service
 ```
 
 ##### 命令行查询
@@ -84,7 +75,7 @@ sudo supervisorctl update
 used.py -u
 
 # 过去一天，所有用户的流量记录
-used.py -l 
+used.py -l
 
 # -d 后面指定整数天数。-d n，表示查询过去n天，所有用户的流量记录
 used.py -d 5

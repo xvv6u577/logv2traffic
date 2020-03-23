@@ -1,0 +1,11 @@
+[Unit]
+Description=logv2traffic
+
+[Service]
+User=ha
+Group=ha
+WorkingDirectory=/home/ha/logv2traffic
+ExecStart=/home/ha/logv2traffic/venv/bin/python /home/ha/logv2traffic/app.py
+
+[Install]
+WantedBy=multi-user.target
