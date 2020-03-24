@@ -1,61 +1,86 @@
-import sys, getopt
-from datetime import datetime
+import sys
+import time
+import getopt
 
-from util.check_db_util import get_days_stats, get_users_info, between_days_stats
+from util.check_db_util import get_stats, get_users_info
 from util.byte_converter import get_printable_size
 
-def echo_stats(info = [], time_from = 0, time_to = 0):
-  print('\nFrom', datetime.utcfromtimestamp(time_from).strftime('%Y-%m-%d %H:%M:%S'),\
-    'to', datetime.utcfromtimestamp(time_to).strftime('%Y-%m-%d %H:%M:%S'),'\n')
-  i = 1
-  for item in info:
-    print('[{:2s}]: {:15s} uplink {:10s}, downlink {:10s}'.format(str(i), item['user'], \
-      get_printable_size(item['uplink']), get_printable_size(item['downlink'])))
-    i += 1
+
+def echo_stats(info=[], time_from=0, time_to=0):
+    print('\nFrom', time.asctime(time.localtime(time_from)),
+          'to', time.asctime(time.localtime(time_to)), '\n')
+    i = 1
+    for item in info:
+        if int(item['uplink']) < 0:
+            print('[{:2s}]: {:15s}'.format(str(i), item['user']))
+        else:
+            print('[{:2s}]: {:15s} uplink {:10s}, downlink {:10s}'.format(str(i), item['user'],
+                                                                          get_printable_size(item['uplink']), get_printable_size(item['downlink'])))
+        i += 1
+
 
 def entry():
-  try:
-    # short option with options that require an argument followed ':', like 'o:'
-    # long option with options that require an argument followed '=', like "out-file="
-    opts, args = getopt.getopt(sys.argv[1:], 'ld:uf:t:', ['list-users', 'days=', 'users', 'from=', 'to='])
+    try:
+        # short option with options that require an argument followed ':', like 'o:'
+        # long option with options that require an argument followed '=', like "out-file="
+        opts, args = getopt.getopt(sys.argv[1:], 'ld:uf:t:p:', [
+                                   'list-users', 'days=', 'users', 'from=', 'to=', 'past='])
 
-  except getopt.GetoptError as err:
-    print("Error: ", str(err))
-    sys.exit(2)
+    except getopt.GetoptError as err:
+        print("Error: ", str(err))
+        sys.exit(2)
 
-  from_moment = 0
-  to_moment = 0
+    from_moment = 0
+    to_moment = 0
 
-  for opt, arg in opts:
-    if opt in ("-l", "--list-users"):
-      info, time_from, time_to = get_days_stats()
-      echo_stats(info, time_from, time_to)
-      sys.exit()
+    for opt, arg in opts:
+        if opt in ("-l", "--list"):
+            now = int(time.time())
+            past_one_day = now - 86400
+            stats = get_stats(past_one_day, now)
+            echo_stats(stats, past_one_day, now)
+            sys.exit()
 
-    elif opt in ("-d", "--days"):
-      info, time_from, time_to = get_days_stats(int(arg))
-      echo_stats(info, time_from, time_to)
-      sys.exit()
-    elif opt in ("-u", "--users"):
-      infos = get_users_info()
-      i = 1
-      for user_info in infos:
-        record_start = ''
-        if 0 != user_info['timestamp']:
-          record_start = datetime.utcfromtimestamp(user_info['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
-        print('[{:2s}]: {:15s} {:20s}'.format(str(i), user_info['user'], record_start))
-        i += 1
-      sys.exit()
-    elif opt in("-f", "--from"):
-      from_moment = int(arg)
-    elif opt in("-t", "--to"):
-      to_moment = int(arg)
-  
-  if from_moment and to_moment:
-    infos = between_days_stats(from_moment, to_moment)
-    echo_stats(infos, from_moment, to_moment)
+        elif opt in ("-d", "--days"):
+            now = int(time.time())
+            time_from = now - 86400 * int(arg)
+            stats = get_stats(time_from, now)
+            echo_stats(stats, time_from, now)
+            sys.exit()
 
-  # print(opts, args)
+        elif opt in ("-u", "--users"):
+            infos = get_users_info()
+            i = 1
+            print('\n[{:2s}]: {:15s} {:25s} - {:25s}\n'.format(
+                'n', 'name', 'start', 'latest'))
+            for user_info in infos:
+                record_start = record_end = ''
+                if 0 != user_info['begin']:
+                    record_start = time.asctime(
+                        time.localtime(user_info['begin']))
+                    record_end = time.asctime(
+                        time.localtime(user_info['end']))
+                print('[{:2s}]: {:15s} {:25s} - {:25s}'.format(
+                    str(i), user_info['user'], record_start, record_end))
+                i += 1
+            sys.exit()
+
+        elif opt in("-f", "--from"):
+            from_moment = int(arg)
+        elif opt in("-t", "--to"):
+            to_moment = int(arg)
+
+        elif opt in("-p", "--past"):
+            now = int(time.time())
+            from_moment = now - int(arg) * 60
+            infos = get_stats(from_moment, now)
+            echo_stats(infos, from_moment, now)
+            sys.exit()
+
+    if from_moment and to_moment:
+        infos = get_stats(from_moment, to_moment)
+        echo_stats(infos, from_moment, to_moment)
+
 
 if __name__ == "__main__":
-  entry()
+    entry()

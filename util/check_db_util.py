@@ -1,73 +1,57 @@
-import time
 from tinydb import TinyDB, where
 
-db= TinyDB('db.json')
+db = TinyDB('db.json')
 db_users = db.table('users')
 
-# 返回过去一天，活动用户的流量统计
-def get_days_stats(day = 1):
 
-  now = int(time.time())
-  past_one_day = now - 86400 * day
-  info = []
+def get_stats(_from=0, _to=0):
+    if 0 == _to or (_from == _to):
+        return []
 
-  for user in db_users:
-    uplink_total = 0
-    downlink_total = 0
-    raw_user_table = db.table(user['email'])
-    user_table = raw_user_table.search(where('timestamp').exists())
+    stats = []
+    for user in db_users:
+        uplink_total = 0
+        downlink_total = 0
+        raw_user_table = db.table(user['email'])
 
-    for item in user_table:
-      if now >= int(item['timestamp']) >= past_one_day :
-          uplink_total += item['uplink']
-          downlink_total += item['downlink']
+        if 0 == len(raw_user_table):
+            uplink_total = -1
+            downlink_total = -1
+        else:
+            user_table = raw_user_table.search(where('timestamp').exists())
 
-    info.append({
-      'user': user['email'],
-      'uplink': uplink_total,
-      'downlink': downlink_total
-    })
+            for item in user_table:
+                if _to >= int(item['timestamp']) >= _from:
+                    uplink_total += item['uplink']
+                    downlink_total += item['downlink']
 
-  info.sort(key = lambda i:i['downlink'], reverse = True)
-  
-  return info, past_one_day, now
+        stats.append({
+            'user': user['email'],
+            'uplink': uplink_total,
+            'downlink': downlink_total
+        })
 
-def between_days_stats(from_moment = 0, to_moment = 0):
-  info = []
-  
-  for user in db_users:
-    uplink_total = 0
-    downlink_total = 0
-    raw_user_table = db.table(user['email'])
-    user_table = raw_user_table.search(where('timestamp').exists())
+    stats.sort(key=lambda i: i['downlink'], reverse=True)
 
-    for item in user_table:
-      if from_moment <= int(item['timestamp']) <= to_moment :
-          uplink_total += item['uplink']
-          downlink_total += item['downlink']
+    return stats
 
-    info.append({
-      'user': user['email'],
-      'uplink': uplink_total,
-      'downlink': downlink_total
-    })
-
-  info.sort(key = lambda i:i['downlink'], reverse = True)
-  return info
 
 def get_users_info():
-  info = []
-  for user in db_users:
-    timestamp = 0
-    u = db.table(user['email'])
-    if len(u) >0:
-      # list(u.all()[0].keys())[0] - get key at {'1583841550': 0}
-      timestamp = int(list(u.all()[0].keys())[0]) \
-        if len(u.all()[0]) == 1 else int(u.all()[0]['timestamp'])
-    info.append({
-      'timestamp': timestamp,
-      'user': user['email']
-    })
-  info.sort(key = lambda i:i['timestamp'], reverse = True)
+    info = []
+    for user in db_users:
+        begin = end = 0
+        u = db.table(user['email'])
+        if len(u) > 0:
+            # list(u.all()[0].keys())[0] - get key at {'1583841550': 0}
+            begin = int(list(u.all()[0].keys())[0]) \
+                if len(u.all()[0]) == 1 else int(u.all()[0]['timestamp'])
+            end = int(list(u.all()[len(u)-1].keys())[0]) \
+                if len(u.all()[len(u)-1]) == 1 else int(u.all()[len(u)-1]['timestamp'])
+        info.append({
+            'user': user['email'],
+            'begin': begin,
+            'end': end
+        })
+    info.sort(key=lambda i: i['end'], reverse=True)
 
-  return info
+    return info

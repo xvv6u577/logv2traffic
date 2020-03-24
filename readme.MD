@@ -71,18 +71,25 @@ sudo systemctl enable dummy.service
 ##### 命令行查询
 
 ```
-# 数据库中，输出所有用户有记录的最初时间
+# 查询数据库中，所有用户最初时间、最新使用时间
 used.py -u
+used.py --users
 
 # 过去一天，所有用户的流量记录
 used.py -l
+used.py --list
 
 # -d 后面指定整数天数。-d n，表示查询过去n天，所有用户的流量记录
 used.py -d 5
+used.py --days 5
 
 # -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，流量为0
 used.py --from 1583998020 --to 1584084421
 used.py -f 1583998020 -t 1584084421
+
+# -p后面指定整数分钟数。查询所有用户过去n分钟的流量记录
+used.py -p 240
+used.py --past 240
 
 ```
 
