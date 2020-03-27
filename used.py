@@ -7,24 +7,51 @@ from util.byte_converter import get_printable_size
 
 
 def echo_stats(info=[], time_from=0, time_to=0):
-    print('\nFrom', time.asctime(time.localtime(time_from)),
-          'to', time.asctime(time.localtime(time_to)), '\n')
+    print(
+        "\nFrom",
+        time.asctime(time.localtime(time_from)),
+        "to",
+        time.asctime(time.localtime(time_to)),
+        "\n",
+    )
     i = 1
     for item in info:
-        if int(item['uplink']) < 0:
-            print('[{:2s}]: {:15s}'.format(str(i), item['user']))
+        if int(item["uplink"]) < 0:
+            print("[{:2s}]: {:15s}".format(str(i), item["user"]))
         else:
-            print('[{:2s}]: {:15s} uplink {:10s}, downlink {:10s}'.format(str(i), item['user'],
-                                                                          get_printable_size(item['uplink']), get_printable_size(item['downlink'])))
+            print(
+                "[{:2s}]: {:15s} uplink {:10s}, downlink {:10s}".format(
+                    str(i),
+                    item["user"],
+                    get_printable_size(item["uplink"]),
+                    get_printable_size(item["downlink"]),
+                )
+            )
         i += 1
+
+
+def usage():
+    print(
+        "\n used.py logv2traffic流量查询工具\n\n",
+        "-h --help  输出帮助信息\n",
+        "-u --users 查询数据库中，所有用户最初时间、最新使用时间\n",
+        "-l --list  过去一天，所有用户的流量记录\n",
+        "-d --days  -d,--days后面指定整数天数。-d n，表示查询过去n天，所有用户的流量记录\n",
+        "-f --from, -t --to ",
+        "\n            -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，流量为0\n",
+        "-p --past  -p,--past后面指定整数分钟数。查询所有用户过去n分钟的流量记录",
+    )
 
 
 def entry():
     try:
         # short option with options that require an argument followed ':', like 'o:'
         # long option with options that require an argument followed '=', like "out-file="
-        opts, args = getopt.getopt(sys.argv[1:], 'ld:uf:t:p:', [
-                                   'list-users', 'days=', 'users', 'from=', 'to=', 'past='])
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "hld:uf:t:p:",
+            ["help", "list-users", "days=", "users", "from=", "to=", "past="],
+        )
 
     except getopt.GetoptError as err:
         print("Error: ", str(err))
@@ -41,6 +68,10 @@ def entry():
             echo_stats(stats, past_one_day, now)
             sys.exit()
 
+        elif opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+
         elif opt in ("-d", "--days"):
             now = int(time.time())
             time_from = now - 86400 * int(arg)
@@ -51,26 +82,30 @@ def entry():
         elif opt in ("-u", "--users"):
             infos = get_users_info()
             i = 1
-            print('\n[{:2s}]: {:15s} {:25s} - {:25s}\n'.format(
-                'n', 'name', 'start', 'latest'))
+            print(
+                "\n[{:2s}]: {:15s} {:25s} - {:25s}\n".format(
+                    "n", "name", "start", "latest"
+                )
+            )
             for user_info in infos:
-                record_start = record_end = ''
-                if 0 != user_info['begin']:
-                    record_start = time.asctime(
-                        time.localtime(user_info['begin']))
-                    record_end = time.asctime(
-                        time.localtime(user_info['end']))
-                print('[{:2s}]: {:15s} {:25s} - {:25s}'.format(
-                    str(i), user_info['user'], record_start, record_end))
+                record_start = record_end = ""
+                if 0 != user_info["begin"]:
+                    record_start = time.asctime(time.localtime(user_info["begin"]))
+                    record_end = time.asctime(time.localtime(user_info["end"]))
+                print(
+                    "[{:2s}]: {:15s} {:25s} - {:25s}".format(
+                        str(i), user_info["user"], record_start, record_end
+                    )
+                )
                 i += 1
             sys.exit()
 
-        elif opt in("-f", "--from"):
+        elif opt in ("-f", "--from"):
             from_moment = int(arg)
-        elif opt in("-t", "--to"):
+        elif opt in ("-t", "--to"):
             to_moment = int(arg)
 
-        elif opt in("-p", "--past"):
+        elif opt in ("-p", "--past"):
             now = int(time.time())
             from_moment = now - int(arg) * 60
             infos = get_stats(from_moment, now)

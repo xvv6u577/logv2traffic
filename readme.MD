@@ -56,7 +56,7 @@ python ./app.py
 ```
 
 每次新加入用户，更新 main.json 之后，再次运行上面命令行，可以更新 db.json。
-由 main.json 生成 db.json 的步骤并不是必需。没有的话，程序依然可以通过 v2ray 的流量，只是 users 表中没有 path 和 uuid。
+由 main.json 生成 db.json 的步骤并不是必需。没有的话，程序依然可以记录 v2ray 的流量，只是 users 表中没有 path 和 uuid。
 
 ##### 添加 systemctl 服务，让脚本以服务的方式运行。
 
@@ -71,6 +71,10 @@ sudo systemctl enable dummy.service
 ##### 命令行查询
 
 ```
+# 输出帮助信息
+used.py -h
+used.py --help
+
 # 查询数据库中，所有用户最初时间、最新使用时间
 used.py -u
 used.py --users
