@@ -2,7 +2,7 @@ import sys
 import time
 import getopt
 
-from util.check_db_util import get_stats, get_users_info
+from util.check_db_util import get_stats, get_users_info, db_merge
 from util.byte_converter import get_printable_size
 
 
@@ -49,8 +49,18 @@ def entry():
         # long option with options that require an argument followed '=', like "out-file="
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "hld:uf:t:p:",
-            ["help", "list-users", "days=", "users", "from=", "to=", "past="],
+            "hld:uf:t:p:i:o:",
+            [
+                "help",
+                "list-users",
+                "out=",
+                "days=",
+                "users",
+                "from=",
+                "to=",
+                "past=",
+                "in=",
+            ],
         )
 
     except getopt.GetoptError as err:
@@ -59,17 +69,23 @@ def entry():
 
     from_moment = 0
     to_moment = 0
+    out = _in = ""
 
     for opt, arg in opts:
-        if opt in ("-l", "--list"):
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-i", "--in"):
+            _in = arg
+
+        elif opt in ("-o", "--out"):
+            out = arg
+
+        elif opt in ("-l", "--list"):
             now = int(time.time())
             past_one_day = now - 86400
             stats = get_stats(past_one_day, now)
             echo_stats(stats, past_one_day, now)
-            sys.exit()
-
-        elif opt in ("-h", "--help"):
-            usage()
             sys.exit()
 
         elif opt in ("-d", "--days"):
@@ -115,6 +131,9 @@ def entry():
     if from_moment and to_moment:
         infos = get_stats(from_moment, to_moment)
         echo_stats(infos, from_moment, to_moment)
+
+    if _in and out:
+        db_merge(_in, out)
 
 
 if __name__ == "__main__":

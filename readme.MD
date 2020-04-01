@@ -12,8 +12,8 @@
 git clone https://github.com/caster8013/logv2traffic.git
 cd ./logv2traffic
 
-python3 -m venv venv
-. venv/bin/activate
+python3 -m venv .ven
+. .ven/bin/activate
 
 pip3 install -r requirement.txt
 chmod +x app.py
@@ -94,6 +94,9 @@ used.py -f 1583998020 -t 1584084421
 # -p后面指定整数分钟数。查询所有用户过去n分钟的流量记录
 used.py -p 240
 used.py --past 240
+
+# -i(--in), -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件
+used.py -i march.json -o db.json
 
 ```
 

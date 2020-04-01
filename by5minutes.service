@@ -5,7 +5,7 @@ Description=logv2traffic
 User=ha
 Group=ha
 WorkingDirectory=/home/ha/logv2traffic
-ExecStart=/home/ha/logv2traffic/venv/bin/python /home/ha/logv2traffic/app.py
+ExecStart=/home/ha/logv2traffic/.ven/bin/python /home/ha/logv2traffic/app.py
 
 [Install]
 WantedBy=multi-user.target
