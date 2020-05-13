@@ -2,7 +2,7 @@ import sys
 import time
 import getopt
 
-from util.check_db_util import get_stats, get_users_info, db_merge
+from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b
 from util.byte_converter import get_printable_size
 
 
@@ -38,9 +38,10 @@ def usage():
         "-l --list  过去一天，所有用户的流量记录\n",
         "-d --days  -d,--days 后面指定整数天数。-d n，表示查询过去n天，所有用户的流量记录\n",
         "-f --from, -t --to ",
-        "\n            -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，流量为0\n",
+        "\n            -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，显示为空\n",
         "-p --past  -p,--past后面指定整数分钟数。查询所有用户过去n分钟的流量记录\n",
         "-i(--in)   -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件\n",
+        "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b"
     )
 
 
@@ -61,6 +62,8 @@ def entry():
                 "to=",
                 "past=",
                 "in=",
+                "merge=",
+                "into="
             ],
         )
 
@@ -71,11 +74,19 @@ def entry():
     from_moment = 0
     to_moment = 0
     out = _in = ""
+    merge = into = ""
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
             sys.exit()
+
+        elif opt in ("--merge"):
+            merge = arg
+
+        elif opt in ("--into"):
+            into = arg
+
         elif opt in ("-i", "--in"):
             _in = arg
 
@@ -135,6 +146,9 @@ def entry():
 
     if _in and out:
         db_merge(_in, out)
+
+    if merge and into:
+        merge_a_into_b(merge, into)
 
 
 if __name__ == "__main__":

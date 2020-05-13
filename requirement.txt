@@ -1,2 +1,2 @@
 schedule==0.6.0
-tinydb==3.15.2
+tinydb==4.1.1

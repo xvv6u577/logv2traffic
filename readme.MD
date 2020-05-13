@@ -87,7 +87,7 @@ used.py --list
 used.py -d 5
 used.py --days 5
 
-# -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，流量为0
+# -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，显示为空
 used.py --from 1583998020 --to 1584084421
 used.py -f 1583998020 -t 1584084421
 
@@ -97,6 +97,9 @@ used.py --past 240
 
 # -i(--in), -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件
 used.py -i march.json -o db.json
+
+# --merge a --into b 后面分别指定用户名，把a的信息和流量合并到b
+python used.py --merge g --into zhouyijun
 
 ```
 

@@ -6,6 +6,8 @@ User=ha
 Group=ha
 WorkingDirectory=/home/ha/logv2traffic
 ExecStart=/home/ha/logv2traffic/.ven/bin/python /home/ha/logv2traffic/app.py
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

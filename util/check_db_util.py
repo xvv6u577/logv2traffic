@@ -3,6 +3,26 @@ from tinydb import TinyDB, where
 from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
 
+def merge_a_into_b(merge, into):
+    with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
+        users = db.table("users")
+        if users.search(where('email') == merge) == [] or users.search(where('email') == into) == []:
+            print(merge,"or", into, "doesn't exist!")
+            return
+        
+        into_doc = users.search(where('email')==merge)
+        into_doc[0]['email'] = into
+        users.upsert(into_doc[0], where('email')==into)
+        doc = users.get(where('email') == merge)
+        users.remove(doc_ids=[doc.doc_id])
+
+        merge_table = db.table(merge)
+        into_table = db.table(into)
+        into_table.insert_multiple(merge_table.all())
+        db.drop_table(merge)
+        
+    print(merge, 'merged into', into)
+    
 
 def db_merge(input, out="db.json"):
 
@@ -52,6 +72,19 @@ def get_stats(_from=0, _to=0):
             )
 
     stats.sort(key=lambda i: i["downlink"], reverse=True)
+
+    up_final = down_final = 0
+    for item in stats:
+        up_final += item['uplink']
+        down_final += item['downlink']
+    
+    stats.append(
+                {
+                    "user": "Total",
+                    "uplink": up_final,
+                    "downlink": down_final,
+                }
+            )
 
     return stats
 
