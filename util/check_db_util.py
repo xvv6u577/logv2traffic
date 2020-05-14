@@ -63,14 +63,7 @@ def get_stats(_from=0, _to=0):
                         uplink_total += item["uplink"]
                         downlink_total += item["downlink"]
 
-            stats.append(
-                {
-                    "user": user["email"],
-                    "uplink": uplink_total,
-                    "downlink": downlink_total,
-                }
-            )
-
+            stats.append( { "user": user["email"], "uplink": uplink_total, "downlink": downlink_total, } )
     stats.sort(key=lambda i: i["downlink"], reverse=True)
 
     up_final = down_final = 0
@@ -78,13 +71,7 @@ def get_stats(_from=0, _to=0):
         up_final += item['uplink']
         down_final += item['downlink']
     
-    stats.append(
-                {
-                    "user": "Total",
-                    "uplink": up_final,
-                    "downlink": down_final,
-                }
-            )
+    stats.append( { "user": "Total", "uplink": up_final, "downlink": down_final, } )
 
     return stats
 
