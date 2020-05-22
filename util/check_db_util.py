@@ -17,8 +17,8 @@ def merge_a_into_b(merge, into):
             users.insert(into_doc[0])
         else :
             users.upsert(into_doc[0], where('email')==into)
-            doc = users.get(where('email') == merge)
-            users.remove(doc_ids=[doc.doc_id])
+        doc = users.get(where('email') == merge)
+        users.remove(doc_ids=[doc.doc_id])
 
         merge_table = db.table(merge)
         into_table = db.table(into)
