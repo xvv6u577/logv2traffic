@@ -1,7 +1,7 @@
 # logv2traffic
 main.json
 .vscode
-db.json
+db.*
 util/__pycache__/
 
 # Byte-compiled / optimized / DLL files
