@@ -17,15 +17,24 @@ def merge_a_into_b(merge, into):
             users.insert(into_doc[0])
         else :
             users.upsert(into_doc[0], where('email')==into)
-        doc = users.get(where('email') == merge)
-        users.remove(doc_ids=[doc.doc_id])
 
         merge_table = db.table(merge)
         into_table = db.table(into)
         into_table.insert_multiple(merge_table.all())
+
+        doc = users.get(where('email') == merge)
+        users.remove(doc_ids=[doc.doc_id])
         db.drop_table(merge)
         
     print('Success!', merge, 'merged into', into)
+
+def user_reset(user):
+    with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
+        users = db.table("users")
+        users.remove(where('email') == user)
+        db.drop_table(user)
+
+    print('Success! user', user, 'info and traffic table removed!')
     
 
 def db_merge(input, out="db.json"):

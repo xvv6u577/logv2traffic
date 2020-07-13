@@ -2,7 +2,7 @@ import sys
 import time
 import getopt
 
-from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b
+from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b, user_reset
 from util.byte_converter import get_printable_size
 
 
@@ -41,7 +41,8 @@ def usage():
         "\n            -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，显示为空\n",
         "-p --past  -p,--past后面指定整数分钟数。查询所有用户过去n分钟的流量记录\n",
         "-i(--in)   -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件\n",
-        "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b"
+        "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b\n",
+        "-r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象",
     )
 
 
@@ -51,7 +52,7 @@ def entry():
         # long option with options that require an argument followed '=', like "out-file="
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "hld:uf:t:p:i:o:",
+            "hld:uf:t:p:i:o:r:",
             [
                 "help",
                 "list-users",
@@ -63,7 +64,8 @@ def entry():
                 "past=",
                 "in=",
                 "merge=",
-                "into="
+                "into=", 
+                "reset=",
             ],
         )
 
@@ -138,6 +140,10 @@ def entry():
             from_moment = now - int(arg) * 60
             infos = get_stats(from_moment, now)
             echo_stats(infos, from_moment, now)
+            sys.exit()
+
+        elif opt in ("-r", "--reset"):
+            user_reset(arg)
             sys.exit()
 
     if from_moment and to_moment:
