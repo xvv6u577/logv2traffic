@@ -3,6 +3,18 @@ from tinydb import TinyDB, where
 from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
 
+def db_clear():
+    with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
+        users_list = []
+        users = db.table("users")
+        for u in users:
+            users_list.append(u['email'])
+
+        for user in users_list:
+            user_table = db.table(user)
+            to_remove_docs = [t.doc_id for t in user_table if(1 == len(t)) ]
+            user_table.remove(doc_ids=to_remove_docs)
+
 def merge_a_into_b(merge, into):
     with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
         users = db.table("users")
@@ -69,9 +81,7 @@ def get_stats(_from=0, _to=0):
                 uplink_total = -1
                 downlink_total = -1
             else:
-                user_table = raw_user_table.search(where("timestamp").exists())
-
-                for item in user_table:
+                for item in raw_user_table:
                     if _to >= int(item["timestamp"]) >= _from:
                         uplink_total += item["uplink"]
                         downlink_total += item["downlink"]

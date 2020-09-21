@@ -20,9 +20,7 @@ def get_traffic_data_to_db():
                     db_users.insert({"email": stat["tag"], "path": "", "uuid": ""})
 
             inbound = db.table(stat["tag"])
-            if 0 == stat["uplink"] and 0 == stat["downlink"]:
-                inbound.insert({moment: 0})
-            else:
+            if 0 != stat["uplink"] and 0 != stat["downlink"]:
                 inbound.insert(
                     {
                         "timestamp": moment,
@@ -32,7 +30,7 @@ def get_traffic_data_to_db():
                 )
 
 
-schedule.every(5).minutes.do(get_traffic_data_to_db)
+schedule.every(1).hour.do(get_traffic_data_to_db)
 
 
 def start_app():

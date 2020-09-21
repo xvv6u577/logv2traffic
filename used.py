@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import sys
 import time
 import getopt
 
-from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b, user_reset
+from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b, user_reset, db_clear
 from util.byte_converter import get_printable_size
 
 
@@ -32,7 +33,7 @@ def echo_stats(info=[], time_from=0, time_to=0):
 
 def usage():
     print(
-        "\n used.py logv2traffic流量查询工具\n\n",
+        "used.py logv2traffic流量查询工具\n\n",
         "-h --help  输出帮助信息\n",
         "-u --users 查询数据库中，所有用户最初时间、最新使用时间\n",
         "-l --list  过去一天，所有用户的流量记录\n",
@@ -42,7 +43,8 @@ def usage():
         "-p --past  -p,--past后面指定整数分钟数。查询所有用户过去n分钟的流量记录\n",
         "-i(--in)   -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件\n",
         "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b\n",
-        "-r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象",
+        "-r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象\n",
+        "--clear 从数据库中删除值为0的doc\n",
     )
 
 
@@ -66,6 +68,7 @@ def entry():
                 "merge=",
                 "into=", 
                 "reset=",
+                "clear",
             ],
         )
 
@@ -81,6 +84,10 @@ def entry():
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
+            sys.exit()
+
+        elif opt in ("--clear"):
+            db_clear()
             sys.exit()
 
         elif opt in ("--merge"):
