@@ -44,7 +44,7 @@ def usage():
         "-i(--in)   -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件\n",
         "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b\n",
         "-r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象\n",
-        "--clear 从数据库中删除值为0的doc\n",
+        "--clear 删除指定天数以前的流量统计。后面指定天数，有效值为100~1000以内，100以内更改为100\n",
     )
 
 
@@ -68,7 +68,7 @@ def entry():
                 "merge=",
                 "into=", 
                 "reset=",
-                "clear",
+                "clear=",
             ],
         )
 
@@ -87,7 +87,10 @@ def entry():
             sys.exit()
 
         elif opt in ("--clear"):
-            db_clear()
+            days = 100
+            if 1000 > int(arg) > 100:
+                days = int(arg)
+            db_clear(int(time.time()) - days * 24 * 3600)
             sys.exit()
 
         elif opt in ("--merge"):

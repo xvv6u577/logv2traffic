@@ -3,8 +3,8 @@ from tinydb import TinyDB, where
 from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
 
-def db_clear():
-    with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
+def db_clear(timestamp):
+    with TinyDB("latest_db.json", storage=CachingMiddleware(JSONStorage)) as db:
         users_list = []
         users = db.table("users")
         for u in users:
@@ -12,7 +12,7 @@ def db_clear():
 
         for user in users_list:
             user_table = db.table(user)
-            to_remove_docs = [t.doc_id for t in user_table if(1 == len(t)) ]
+            to_remove_docs = [t.doc_id for t in user_table if int(t['timestamp']) < timestamp ]
             user_table.remove(doc_ids=to_remove_docs)
 
 def merge_a_into_b(merge, into):
