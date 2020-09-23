@@ -4,7 +4,7 @@ from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
 
 def db_clear(timestamp):
-    with TinyDB("latest_db.json", storage=CachingMiddleware(JSONStorage)) as db:
+    with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
         users_list = []
         users = db.table("users")
         for u in users:
