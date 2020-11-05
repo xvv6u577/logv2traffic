@@ -29,7 +29,6 @@ def get_traffic_data_to_db():
                     }
                 )
 
-
 schedule.every(1).hour.do(get_traffic_data_to_db)
 
 

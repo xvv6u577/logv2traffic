@@ -5,6 +5,7 @@ import getopt
 
 from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b, user_reset, db_clear
 from util.byte_converter import get_printable_size
+from util.init_schedule import get_traffic_data_to_db
 
 
 def echo_stats(info=[], time_from=0, time_to=0):
@@ -45,6 +46,7 @@ def usage():
         "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b\n",
         "-r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象\n",
         "--clear 删除指定天数以前的流量统计。后面指定天数，有效值为100~1000以内，100以内更改为100\n",
+        "--write 把用户流量信息写入db.json\n",
     )
 
 
@@ -57,6 +59,7 @@ def entry():
             "hld:uf:t:p:i:o:r:",
             [
                 "help",
+                "write",
                 "list-users",
                 "out=",
                 "days=",
@@ -86,10 +89,12 @@ def entry():
             usage()
             sys.exit()
 
+        elif opt in("--write"):
+            get_traffic_data_to_db()
+            sys.exit()
+
         elif opt in ("--clear"):
-            days = 100
-            if 1000 > int(arg) > 100:
-                days = int(arg)
+            days = int(arg) if 1000 > int(arg) > 100 else 100
             db_clear(int(time.time()) - days * 24 * 3600)
             sys.exit()
 
