@@ -185,7 +185,8 @@ def entry():
 
     if month:
         infos, start, end = traffic_by_month(month, year)
-        echo_stats(infos, start, end)
+        if infos:
+            echo_stats(infos, start, end)
 
 if __name__ == "__main__":
     entry()

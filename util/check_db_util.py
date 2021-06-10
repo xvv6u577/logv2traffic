@@ -16,7 +16,7 @@ def traffic_by_month(month = 0, year = 0):
         return get_stats(start, end), start, end
     else:
         print("Error! You should input month in number!")
-        return
+        return (None, 0, 0)
 
 def db_clear(timestamp):
     with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:
