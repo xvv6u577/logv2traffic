@@ -2,6 +2,21 @@ from tinydb import TinyDB, where
 
 from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
+import datetime
+
+def traffic_by_month(month = 0, year = 0):
+    months = [1,2,3,4,5,6,7,8,9,10,11,12]
+    if 0 == year:
+        year = datetime.datetime.now().year
+    if month in months:
+        if 12 == month:
+             start, end = int(datetime.datetime(year, month, 1).timestamp()), int(datetime.datetime(year + 1, 1, 1).timestamp())
+        else:
+            start, end = int(datetime.datetime(year, month, 1).timestamp()), int(datetime.datetime(year, month + 1, 1).timestamp())
+        return get_stats(start, end), start, end
+    else:
+        print("Error! You should input month in number!")
+        return
 
 def db_clear(timestamp):
     with TinyDB("db.json", storage=CachingMiddleware(JSONStorage)) as db:

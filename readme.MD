@@ -2,7 +2,7 @@
 
 一个简单的 v2ray 流量统计程序，用 python 实现。
 
-程序运行之后，每 5 分钟统计一次 v2ray 的流量，记录在 db.json。
+程序运行之后，每小时统计一次 v2ray 的流量，记录在 db.json。
 
 ### 环境 & 安装
 
@@ -101,7 +101,20 @@ used.py -i march.json -o db.json
 # --merge a --into b 后面分别指定用户名，把a的信息和流量合并到b
 python used.py --merge g --into zhouyijun
 
-```
+# -r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象
+python used.py -r kate
+
+# --clear 删除指定天数以前的流量统计。后面指定天数，有效值为100~1000以内，100以内更改为100
+python used.py --clear 60
+python used.py --clear=60
+
+# --write 把用户流量信息写入db.json
+python used.py --write
+
+# -m --month 后接6位数字，如202106，表示查询2021年6月份所有用户产生流量
+python used.py -m 202106
+python used.py --month 202106
+python used.py --month=202106
 
 ## 感谢
 

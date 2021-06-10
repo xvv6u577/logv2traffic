@@ -3,7 +3,7 @@ import sys
 import time
 import getopt
 
-from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b, user_reset, db_clear
+from util.check_db_util import get_stats, get_users_info, db_merge, merge_a_into_b, user_reset, db_clear, traffic_by_month
 from util.byte_converter import get_printable_size
 from util.init_schedule import get_traffic_data_to_db
 
@@ -39,14 +39,16 @@ def usage():
         "-u --users 查询数据库中，所有用户最初时间、最新使用时间\n",
         "-l --list  过去一天，所有用户的流量记录\n",
         "-d --days  -d,--days 后面指定整数天数。-d n，表示查询过去n天，所有用户的流量记录\n",
-        "-f --from, -t --to ",
-        "\n            -f(or --from), -t(--to)后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，显示为空\n",
+        "-f(or --from), -t(--to) ",
+        "\n    后面指定一个时间段，10位Unix timestamp，查询时间段内，所有用户的流量记录。没有记录的话，显示为空\n",
         "-p --past  -p,--past后面指定整数分钟数。查询所有用户过去n分钟的流量记录\n",
         "-i(--in)   -o(--out) 后面分别指定json文件名，把2个db.json文件合并到一个文件\n",
         "--merge a --into b 后面分别指定用户名，把a的信息和流量合并到b\n",
         "-r --reset 从数据库中删除用户和流量信息，后跟用户名、指定操作对象\n",
         "--clear 删除指定天数以前的流量统计。后面指定天数，有效值为100~1000以内，100以内更改为100\n",
         "--write 把用户流量信息写入db.json\n",
+        "-m --month 后接月份数字，如1、12，表示1月、12月\n",
+        "-y --year 后接年份数字，如2021， 表示2021年"
     )
 
 
@@ -56,7 +58,7 @@ def entry():
         # long option with options that require an argument followed '=', like "out-file="
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "hld:uf:t:p:i:o:r:",
+            "hld:uf:t:p:i:o:r:m:y:",
             [
                 "help",
                 "write",
@@ -72,6 +74,8 @@ def entry():
                 "into=", 
                 "reset=",
                 "clear=",
+                "month=",
+                "year=",
             ],
         )
 
@@ -83,11 +87,19 @@ def entry():
     to_moment = 0
     out = _in = ""
     merge = into = ""
+    month = 0
+    year = 0
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
             sys.exit()
+
+        elif opt in ("-m", "--month"):
+            month = int(arg)
+        
+        elif opt in ("-y", "--year"):
+            year = int(arg)
 
         elif opt in("--write"):
             get_traffic_data_to_db()
@@ -171,6 +183,9 @@ def entry():
     if merge and into:
         merge_a_into_b(merge, into)
 
+    if month:
+        infos, start, end = traffic_by_month(month, year)
+        echo_stats(infos, start, end)
 
 if __name__ == "__main__":
     entry()
